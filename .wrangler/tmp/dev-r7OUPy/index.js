@@ -1,4 +1,4 @@
-// .wrangler/tmp/bundle-Fk5ciB/checked-fetch.js
+// .wrangler/tmp/bundle-dA7PFQ/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -26,7 +26,26 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
 // src/index.ts
 var src_default = {
   async fetch(request, env, ctx) {
-    return new Response("Hello World!");
+    const url = new URL(request.url);
+    if (url.pathname === "/api/products") {
+      try {
+        const products = await fetch(
+          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get"
+        );
+        if (!products.ok) {
+          return new Response("Error fetching data:", {
+            status: products.status
+          });
+        }
+        const data = await products.json();
+        return new Response(JSON.stringify(data), {
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        return new Response("Failed to fetch products:", { status: 500 });
+      }
+    }
+    return new Response("Not Found", { status: 404 });
   }
 };
 
@@ -70,7 +89,7 @@ var jsonError = async (request, env, _ctx, middlewareCtx) => {
 };
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-Fk5ciB/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-dA7PFQ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -99,7 +118,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 
-// .wrangler/tmp/bundle-Fk5ciB/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-dA7PFQ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

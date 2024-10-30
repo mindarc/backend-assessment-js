@@ -9,25 +9,55 @@
  */
 
 export interface Env {
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
-	//
-	// Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-	// MY_SERVICE: Fetcher;
+  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
+  MY_KV_NAMESPACE: KVNamespace;
+  //
+  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
+  MY_DURABLE_OBJECT: DurableObjectNamespace;
+  //
+  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
+  MY_BUCKET: R2Bucket;
+  //
+  // Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
+  MY_SERVICE: Fetcher;
 }
 
 export default {
-	async fetch(
-		request: Request,
-		env: Env,
-		ctx: ExecutionContext
-	): Promise<Response> {
-		return new Response("Hello World!");
-	},
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<Response> {
+    // Parse the request URL
+    const url = new URL(request.url);
+
+    // Check if the path is "/api/products"
+    if (url.pathname === "/api/products") {
+      try {
+        // Sample product data
+        const products = await fetch(
+          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get"
+        );
+
+        //   Check if fetch is unsuccessful
+        if (!products.ok) {
+          return new Response("Error fetching data:", {
+            status: products.status,
+          });
+        }
+
+        const data = await products.json();
+
+        // Return the JSON response if successful
+        return new Response(JSON.stringify(data), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        return new Response("Failed to fetch products:", { status: 500 });
+      }
+    }
+
+    // Default response for other routes
+    return new Response("Not Found", { status: 404 });
+  },
 };
