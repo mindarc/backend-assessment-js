@@ -61,7 +61,14 @@ var src_default = {
     if (url.pathname === "/api/products") {
       try {
         const response = await fetch(
-          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get"
+          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get",
+          // "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "text/html"
+            }
+          }
         );
         if (!response.ok) {
           return new Response("Error fetching data:", {
@@ -91,53 +98,104 @@ var src_default = {
             </tr>`;
         }).join("");
         const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Products</title>
-          <style>
-            table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 8px;
-              border: 1px solid #ddd;
-              text-align: left;
-            }
-            th {
-              background-color: #f2f2f2;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Product List</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Tags</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>SKU</th>
-              </tr>
-            </thead>
-            <tbody>
-            ${dataRows}
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `;
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Products</title>
+            <style>
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Product List</h1>
+            <form id="productForm" action="https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts" method="POST">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required placeholder="Enter product title" />
+
+            <label for="tags">Tags (comma-separated)</label>
+            <input type="text" id="tags" name="tags" placeholder="E.g., electronics, gadget" />
+            <button type="submit">Add Product</button>
+            </form>
+            <br />
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Tags</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                  <th>SKU</th>
+                </tr>
+              </thead>
+              <tbody>
+              ${dataRows}
+              </tbody>
+            </table>
+          </body>
+          </html>
+        `;
         return new Response(html, {
           headers: { "Content-Type": "text/html" }
         });
       } catch (error) {
         return new Response("Failed to fetch products!", { status: 500 });
       }
+    }
+    if (url.pathname === "api/products" && request.method === "POST") {
+      const response = await fetch(
+        "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      const html = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Products</title>
+            <style>
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Product Add</h1>
+            ${response}
+          </body>
+          </html>
+        `;
+      return new Response(html, {
+        headers: { "Content-Type": "text/html" }
+      });
     }
     return new Response("Not Found", { status: 404 });
   }

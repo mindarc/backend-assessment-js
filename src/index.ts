@@ -66,12 +66,19 @@ export default {
       });
     }
 
-    // Route to "Products" >> "/api/products"
+    // GET
     if (url.pathname === "/api/products") {
       try {
         // Sample product data
         const response = await fetch(
-          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get"
+          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get",
+          // "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "text/html",
+            },
+          }
         );
 
         //   Check if fetch is unsuccessful
@@ -89,6 +96,7 @@ export default {
             status: 500,
           });
         }
+
         const dataRows = data
           .map((item) => {
             // id, title + variants, tags, created, updated, sku
@@ -111,47 +119,56 @@ export default {
           .join("");
 
         const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Products</title>
-          <style>
-            table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 8px;
-              border: 1px solid #ddd;
-              text-align: left;
-            }
-            th {
-              background-color: #f2f2f2;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Product List</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Tags</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>SKU</th>
-              </tr>
-            </thead>
-            <tbody>
-            ${dataRows}
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `;
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Products</title>
+            <style>
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Product List</h1>
+            <form id="productForm" action="https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts" method="POST">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required placeholder="Enter product title" />
+
+            <label for="tags">Tags (comma-separated)</label>
+            <input type="text" id="tags" name="tags" placeholder="E.g., electronics, gadget" />
+            <button type="submit">Add Product</button>
+            </form>
+            <br />
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Tags</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                  <th>SKU</th>
+                </tr>
+              </thead>
+              <tbody>
+              ${dataRows}
+              </tbody>
+            </table>
+          </body>
+          </html>
+        `;
 
         // Return the HTML as a Response
         return new Response(html, {
@@ -160,6 +177,53 @@ export default {
       } catch (error) {
         return new Response("Failed to fetch products!", { status: 500 });
       }
+    }
+
+    // POST
+    if (url.pathname === "api/products" && request.method === "POST") {
+      const response = await fetch(
+        "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const html = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Products</title>
+            <style>
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Product Add</h1>
+            ${response}
+          </body>
+          </html>
+        `;
+
+      // Return the HTML as a Response
+      return new Response(html, {
+        headers: { "Content-Type": "text/html" },
+      });
     }
 
     // Default response for other routes
