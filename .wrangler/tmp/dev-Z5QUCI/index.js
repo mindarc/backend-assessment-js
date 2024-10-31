@@ -1,4 +1,4 @@
-// .wrangler/tmp/bundle-dA7PFQ/checked-fetch.js
+// .wrangler/tmp/bundle-svXpsl/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,6 +27,37 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
 var src_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === "/" || url.pathname === "") {
+      const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Products</title>
+          <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            th, td {
+              padding: 8px;
+              border: 1px solid #ddd;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Homepage</h1>
+          <a href="/api/products">Products</a>
+        </body>
+        </html>`;
+      return new Response(html, {
+        headers: { "Content-Type": "text/html" }
+      });
+    }
     if (url.pathname === "/api/products") {
       try {
         const products = await fetch(
@@ -38,11 +69,67 @@ var src_default = {
           });
         }
         const data = await products.json();
-        return new Response(JSON.stringify(data), {
-          headers: { "Content-Type": "application/json" }
+        if (!Array.isArray(data)) {
+          return new Response("Error data format!", {
+            status: 500
+          });
+        }
+        const dataRows = data.map((item) => {
+          console.log(item), `<tr>
+              <td>${item.id}</td>
+              <td>${item.title} (${item.variants?.title || "N/A"})</td>
+              <td>${item.tags?.join(", ") || "No tags"}</td>
+              <td>${item.created_at}</td>
+              <td>${item.updated_at}</td>
+              <td>${item.sku}</td>
+            </tr>`;
+        }).join("");
+        const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Products</title>
+          <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            th, td {
+              padding: 8px;
+              border: 1px solid #ddd;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Product List</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Tags</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>SKU</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+        return new Response(html, {
+          headers: { "Content-Type": "text/html" }
         });
       } catch (error) {
-        return new Response("Failed to fetch products:", { status: 500 });
+        return new Response("Failed to fetch products!", { status: 500 });
       }
     }
     return new Response("Not Found", { status: 404 });
@@ -89,7 +176,7 @@ var jsonError = async (request, env, _ctx, middlewareCtx) => {
 };
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-dA7PFQ/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-svXpsl/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -118,7 +205,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 
-// .wrangler/tmp/bundle-dA7PFQ/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-svXpsl/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

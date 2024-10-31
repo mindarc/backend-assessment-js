@@ -31,7 +31,42 @@ export default {
     // Parse the request URL
     const url = new URL(request.url);
 
-    // Check if the path is "/api/products"
+    // Route to "Home" >> "/"
+    if (url.pathname === "/" || url.pathname === "") {
+      const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Products</title>
+          <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            th, td {
+              padding: 8px;
+              border: 1px solid #ddd;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Homepage</h1>
+          <a href="/api/products">Products</a>
+        </body>
+        </html>`;
+
+      // Return the Homepage
+      return new Response(html, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // Route to "Products" >> "/api/products"
     if (url.pathname === "/api/products") {
       try {
         // Sample product data
@@ -46,14 +81,77 @@ export default {
           });
         }
 
+        // Ensure JSON data is parse
         const data = await products.json();
 
-        // Return the JSON response if successful
-        return new Response(JSON.stringify(data), {
-          headers: { "Content-Type": "application/json" },
+        // Check and tell it is array
+        if (!Array.isArray(data)) {
+          return new Response("Error data format!", {
+            status: 500,
+          });
+        }
+        const dataRows = data
+          .map((item: any) => {
+            console.log(item),
+              `<tr>
+              <td>${item.id}</td>
+              <td>${item.title} (${item.variants?.title || "N/A"})</td>
+              <td>${item.tags?.join(", ") || "No tags"}</td>
+              <td>${item.created_at}</td>
+              <td>${item.updated_at}</td>
+              <td>${item.sku}</td>
+            </tr>`;
+          })
+          .join("");
+
+        const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Products</title>
+          <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            th, td {
+              padding: 8px;
+              border: 1px solid #ddd;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Product List</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Tags</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>SKU</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+        // Return the HTML as a Response
+        return new Response(html, {
+          headers: { "Content-Type": "text/html" },
         });
       } catch (error) {
-        return new Response("Failed to fetch products:", { status: 500 });
+        return new Response("Failed to fetch products!", { status: 500 });
       }
     }
 
