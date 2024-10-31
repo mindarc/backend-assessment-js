@@ -85,7 +85,7 @@ var src_default = {
               <td>${item.updated_at}</td>
               <td>${item.sku}</td>
             </tr>`;
-        }).join("");
+        });
         const html = `
         <!DOCTYPE html>
         <html lang="en">

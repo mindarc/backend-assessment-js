@@ -91,9 +91,8 @@ export default {
             status: 500,
           });
         }
-        const dataRows = data
-          .map((item: any) => {
-            `<tr>
+        const dataRows = data.map((item: any) => {
+          `<tr>
               <td>${item.id}</td>
               <td>${item.title} (${item.variants?.title || "N/A"})</td>
               <td>${item.tags?.join(", ") || "No tags"}</td>
@@ -101,8 +100,7 @@ export default {
               <td>${item.updated_at}</td>
               <td>${item.sku}</td>
             </tr>`;
-          })
-          .join("");
+        });
 
         const html = `
         <!DOCTYPE html>
