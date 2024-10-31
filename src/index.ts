@@ -84,23 +84,31 @@ export default {
         const res: any = await response.json();
         const data = res.products;
 
-        console.log(data);
-
         if (!Array.isArray(data)) {
           return new Response("Error data format!", {
             status: 500,
           });
         }
-        const dataRows = data.map((item: any) => {
-          `<tr>
+        const dataRows = data
+          .map((item) => {
+            // id, title + variants, tags, created, updated, sku
+            console.log(item);
+
+            const variantTitle = item.variants.map(
+              (variant: any) => variant.title
+            );
+            const variantSku = item.variants.map((variant: any) => variant.sku);
+
+            return `<tr>
               <td>${item.id}</td>
-              <td>${item.title} (${item.variants?.title || "N/A"})</td>
-              <td>${item.tags?.join(", ") || "No tags"}</td>
+              <td>${variantTitle}</td>
+              <td>${item.tags}</td>
               <td>${item.created_at}</td>
               <td>${item.updated_at}</td>
-              <td>${item.sku}</td>
+              <td>${variantSku}</td>
             </tr>`;
-        });
+          })
+          .join("");
 
         const html = `
         <!DOCTYPE html>

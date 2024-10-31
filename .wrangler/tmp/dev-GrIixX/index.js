@@ -1,4 +1,4 @@
-// .wrangler/tmp/bundle-svXpsl/checked-fetch.js
+// .wrangler/tmp/bundle-MgHCUS/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -70,22 +70,26 @@ var src_default = {
         }
         const res = await response.json();
         const data = res.products;
-        console.log(data);
         if (!Array.isArray(data)) {
           return new Response("Error data format!", {
             status: 500
           });
         }
         const dataRows = data.map((item) => {
-          `<tr>
+          console.log(item);
+          const variantTitle = item.variants.map(
+            (variant) => variant.title
+          );
+          const variantSku = item.variants.map((variant) => variant.sku);
+          return `<tr>
               <td>${item.id}</td>
-              <td>${item.title} (${item.variants?.title || "N/A"})</td>
-              <td>${item.tags?.join(", ") || "No tags"}</td>
+              <td>${variantTitle}</td>
+              <td>${item.tags}</td>
               <td>${item.created_at}</td>
               <td>${item.updated_at}</td>
-              <td>${item.sku}</td>
+              <td>${variantSku}</td>
             </tr>`;
-        });
+        }).join("");
         const html = `
         <!DOCTYPE html>
         <html lang="en">
@@ -179,7 +183,7 @@ var jsonError = async (request, env, _ctx, middlewareCtx) => {
 };
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-svXpsl/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-MgHCUS/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -208,7 +212,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 
-// .wrangler/tmp/bundle-svXpsl/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-MgHCUS/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
