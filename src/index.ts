@@ -66,10 +66,40 @@ export default {
       });
     }
 
-    // GET
+    // POST
+    function addProductForm() {
+      return `<form id="productForm" onsubmit="addNewProduct(event)" method="POST">
+          <label for="title">Title</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            required
+            placeholder="Enter product title"
+          />
+
+          <label for="tags">Tags (comma-separated)</label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            placeholder="E.g., electronics, gadget"
+          />
+          <button type="submit">Add Product</button>
+        </form>`;
+    }
+
+    const response = await fetch(
+      "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+      {
+        method: "POST",
+      }
+    );
+
+    // Route to Products
     if (url.pathname === "/api/products") {
       try {
-        // Sample product data
+        // GET Products
         const response = await fetch(
           "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get",
           // "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
@@ -80,7 +110,6 @@ export default {
             },
           }
         );
-
         //   Check if fetch is unsuccessful
         if (!response.ok) {
           return new Response("Error fetching data:", {
@@ -142,14 +171,7 @@ export default {
           </head>
           <body>
             <h1>Product List</h1>
-            <form id="productForm" action="https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts" method="POST">
-            <label for="title">Title</label>
-            <input type="text" id="title" name="title" required placeholder="Enter product title" />
-
-            <label for="tags">Tags (comma-separated)</label>
-            <input type="text" id="tags" name="tags" placeholder="E.g., electronics, gadget" />
-            <button type="submit">Add Product</button>
-            </form>
+            ${addProductForm()}
             <br />
             <table>
               <thead>
@@ -177,53 +199,6 @@ export default {
       } catch (error) {
         return new Response("Failed to fetch products!", { status: 500 });
       }
-    }
-
-    // POST
-    if (url.pathname === "api/products" && request.method === "POST") {
-      const response = await fetch(
-        "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const html = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Products</title>
-            <style>
-              table {
-                width: 100%;
-                border-collapse: collapse;
-              }
-              th, td {
-                padding: 8px;
-                border: 1px solid #ddd;
-                text-align: left;
-              }
-              th {
-                background-color: #f2f2f2;
-              }
-            </style>
-          </head>
-          <body>
-            <h1>Product Add</h1>
-            ${response}
-          </body>
-          </html>
-        `;
-
-      // Return the HTML as a Response
-      return new Response(html, {
-        headers: { "Content-Type": "text/html" },
-      });
     }
 
     // Default response for other routes
