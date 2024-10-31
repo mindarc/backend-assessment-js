@@ -60,22 +60,24 @@ var src_default = {
     }
     if (url.pathname === "/api/products") {
       try {
-        const products = await fetch(
+        const response = await fetch(
           "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get"
         );
-        if (!products.ok) {
+        if (!response.ok) {
           return new Response("Error fetching data:", {
-            status: products.status
+            status: response.status
           });
         }
-        const data = await products.json();
+        const res = await response.json();
+        const data = res.products;
+        console.log(data);
         if (!Array.isArray(data)) {
           return new Response("Error data format!", {
             status: 500
           });
         }
         const dataRows = data.map((item) => {
-          console.log(item), `<tr>
+          `<tr>
               <td>${item.id}</td>
               <td>${item.title} (${item.variants?.title || "N/A"})</td>
               <td>${item.tags?.join(", ") || "No tags"}</td>
@@ -120,6 +122,7 @@ var src_default = {
               </tr>
             </thead>
             <tbody>
+            ${dataRows}
             </tbody>
           </table>
         </body>
