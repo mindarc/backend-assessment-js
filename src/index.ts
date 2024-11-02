@@ -66,38 +66,8 @@ export default {
       });
     }
 
-    // POST
-    function addProductForm() {
-      return `<form id="productForm" onsubmit="addNewProduct(event)" method="POST">
-          <label for="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            required
-            placeholder="Enter product title"
-          />
-
-          <label for="tags">Tags (comma-separated)</label>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            placeholder="E.g., electronics, gadget"
-          />
-          <button type="submit">Add Product</button>
-        </form>`;
-    }
-
-    const response = await fetch(
-      "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
-      {
-        method: "POST",
-      }
-    );
-
     // Route to Products
-    if (url.pathname === "/api/products") {
+    if (url.pathname === "/api/products" && request.method === "GET") {
       try {
         // GET Products
         const response = await fetch(
@@ -129,7 +99,6 @@ export default {
         const dataRows = data
           .map((item) => {
             // id, title + variants, tags, created, updated, sku
-            console.log(item);
 
             const variantTitle = item.variants.map(
               (variant: any) => variant.title
@@ -171,7 +140,26 @@ export default {
           </head>
           <body>
             <h1>Product List</h1>
-            ${addProductForm()}
+            <form id="productForm" method="POST" action="/api/products">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="Enter product title"
+            />
+
+            <label for="tags">Tags (comma-separated)</label>
+            <input
+              type="text"
+              id="tags"
+              name="tags"
+              placeholder="E.g., electronics, gadget"
+            />
+
+            <button type="submit">Add Product</button>
+          </form>
             <br />
             <table>
               <thead>
@@ -199,7 +187,46 @@ export default {
       } catch (error) {
         return new Response("Failed to fetch products!", { status: 500 });
       }
-    }
+    } // End of GET
+
+    // POST
+    if (url.pathname === "/api/products" && request.method === "POST") {
+      try {
+        const formData = await request.formData();
+        const title = formData.get("title") as string;
+        const tags = (formData.get("tags") as string)
+          .split(",")
+          .map((tag) => tag.trim());
+
+        // Construct the data object to send in the POST request
+        const data = {
+          title,
+          tags,
+        };
+
+        // Make the POST request to the external API
+        const apiResponse = await fetch(
+          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          }
+        );
+
+        if (!apiResponse.ok) {
+          return new Response("Failed to add product", {
+            status: apiResponse.status,
+          });
+        }
+
+        return new Response("Product added successfully!", { status: 200 });
+      } catch (error) {
+        return new Response("Error adding product!", { status: 500 });
+      }
+    } // End of POST
 
     // Default response for other routes
     return new Response("Not Found", { status: 404 });

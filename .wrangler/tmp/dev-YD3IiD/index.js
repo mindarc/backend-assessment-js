@@ -1,4 +1,4 @@
-// .wrangler/tmp/bundle-B3ySBO/checked-fetch.js
+// .wrangler/tmp/bundle-ZkqODG/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -58,36 +58,9 @@ var src_default = {
         headers: { "Content-Type": "text/html" }
       });
     }
-    function addProductForm() {
-      return `<form id="productForm" onsubmit="addNewProduct(event)" method="POST">
-          <label for="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            required
-            placeholder="Enter product title"
-          />
-
-          <label for="tags">Tags (comma-separated)</label>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            placeholder="E.g., electronics, gadget"
-          />
-          <button type="submit">Add Product</button>
-        </form>`;
-    }
-    const response = await fetch(
-      "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
-      {
-        method: "POST"
-      }
-    );
-    if (url.pathname === "/api/products") {
+    if (url.pathname === "/api/products" && request.method === "GET") {
       try {
-        const response2 = await fetch(
+        const response = await fetch(
           "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/get",
           // "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
           {
@@ -97,12 +70,12 @@ var src_default = {
             }
           }
         );
-        if (!response2.ok) {
+        if (!response.ok) {
           return new Response("Error fetching data:", {
-            status: response2.status
+            status: response.status
           });
         }
-        const res = await response2.json();
+        const res = await response.json();
         const data = res.products;
         if (!Array.isArray(data)) {
           return new Response("Error data format!", {
@@ -110,7 +83,6 @@ var src_default = {
           });
         }
         const dataRows = data.map((item) => {
-          console.log(item);
           const variantTitle = item.variants.map(
             (variant) => variant.title
           );
@@ -148,7 +120,26 @@ var src_default = {
           </head>
           <body>
             <h1>Product List</h1>
-            ${addProductForm()}
+            <form id="productForm" method="POST" action="/api/products">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="Enter product title"
+            />
+
+            <label for="tags">Tags (comma-separated)</label>
+            <input
+              type="text"
+              id="tags"
+              name="tags"
+              placeholder="E.g., electronics, gadget"
+            />
+
+            <button type="submit">Add Product</button>
+          </form>
             <br />
             <table>
               <thead>
@@ -173,6 +164,35 @@ var src_default = {
         });
       } catch (error) {
         return new Response("Failed to fetch products!", { status: 500 });
+      }
+    }
+    if (url.pathname === "/api/products" && request.method === "POST") {
+      try {
+        const formData = await request.formData();
+        const title = formData.get("title");
+        const tags = formData.get("tags").split(",").map((tag) => tag.trim());
+        const data = {
+          title,
+          tags
+        };
+        const apiResponse = await fetch(
+          "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+          }
+        );
+        if (!apiResponse.ok) {
+          return new Response("Failed to add product", {
+            status: apiResponse.status
+          });
+        }
+        return new Response("Product added successfully!", { status: 200 });
+      } catch (error) {
+        return new Response("Error adding product!", { status: 500 });
       }
     }
     return new Response("Not Found", { status: 404 });
@@ -219,7 +239,7 @@ var jsonError = async (request, env, _ctx, middlewareCtx) => {
 };
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-B3ySBO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-ZkqODG/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -248,7 +268,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 
-// .wrangler/tmp/bundle-B3ySBO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-ZkqODG/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
