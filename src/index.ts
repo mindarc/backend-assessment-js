@@ -204,6 +204,8 @@ export default {
           tags,
         };
 
+        console.log(formData, data);
+
         // Make the POST request to the external API
         const apiResponse = await fetch(
           "https://02557f4d-8f03-405d-a4e7-7a6483d26a04.mock.pstmn.io/getProducts",
